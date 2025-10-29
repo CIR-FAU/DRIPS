@@ -26,8 +26,8 @@ The argument --hyperintense should reflect the PVS contrast in your MRI sequence
 The --threshold can be adjusted (typical range: 0.01 – 1.0).
 The model and required dependencies are pre-packaged in the container.
 
-## 🧩 W before running DRIPS
-The following steps generate a SynthSeg parcellation aligned to the native image space, which is required as anatomical prior input for DRIPS.
+## 🧩 Running SynthSeg before running DRIPS
+The following steps generate a SynthSeg parcellation aligned to the native image space, which is required to exclude segmentations outside of the region of interest (CSO + BG).
 <pre><code>docker pull freesurfer/freesurfer:7.4.1</code></pre>
 
 🔄 1. Run SynthSeg segmentation
