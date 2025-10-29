@@ -22,8 +22,11 @@ Run DRIPS on a single MRI image (e.g. T2-weighted) to segment PVS:
 
 ## 🧠 Notes
 The input and output paths must be inside the mounted directory (/data here).
+
 The argument --hyperintense should reflect the PVS contrast in your MRI sequence (T2w → 1, T1w → 0).
-The --threshold can be adjusted (typical range: 0.01 – 1.0).
+
+The --threshold can be adjusted (typical range: 0.01 – 1.00).
+
 The model and required dependencies are pre-packaged in the container.
 
 ## 🧩 Running SynthSeg before running DRIPS
