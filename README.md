@@ -3,6 +3,12 @@
 DRIPS is a physics-inspired deep learning framework for accurate and generalisable segmentation of perivascular spaces (PVS) on structural MRI.
 It uses domain randomisation to train models exclusively on synthetic data, enabling robust performance across different modalities (T1w, T2w) and resolutions (isotropic and anisotropic) — without retraining or fine-tuning.
 
+## Citation
+If you use DRIPS in your research, please cite the following paper:
+<pre>Bitar, L., Díaz, M., Duarte Coello, R., Valdés-Hernández, M. D. C., Mattern, H., Neumann, K., ... & Bernal, J. (2025). 
+  DRIPS: Domain Randomisation for Image-based Perivascular Spaces Segmentation. medRxiv, 2025-10. 
+  https://doi.org/10.1101/2025.10.22.25337423</pre>
+
 ## Prerequisites
 ### 1. Docker must be installed and running
 <pre><code>docker --version</code></pre>
