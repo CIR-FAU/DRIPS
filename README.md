@@ -50,33 +50,18 @@ This parcellation is used by DRIPS to restrict segmentation to relevant brain re
     --cpu \
     --threads 5
 </code></pre>
-### 3.2 Compute rigid registration
+### 3.2 Resample SynthSeg parcellation to native space
 <pre><code>docker run --rm \
   -v $(pwd)/license.txt:/usr/local/freesurfer/license.txt \
   -e FS_LICENSE=/usr/local/freesurfer/license.txt \
   -v $(pwd)/data:/data \
   freesurfer/freesurfer:7.4.1 \
-  mri_robust_register \
-    --mov /data/t2w_resampled.nii.gz \
-    --dst /data/t2w.nii.gz \
-    --lta /data/t2w_transf.lta \
-    --satit \
-    --iscale 0 \
-    --maxit 1000
+  mri_label2vol \
+    --seg /data/t2w_synthseg.nii.gz \
+    --temp /data/t2w.nii.gz \
+    --o /data/t2w_synthseg_native.nii.gz \
+    --regheader /data/t2w.nii.gz
 </code></pre>
-### 3.3 Apply the transform to SynthSeg output
-<pre><code>docker run --rm \
-  -v $(pwd)/license.txt:/usr/local/freesurfer/license.txt \
-  -e FS_LICENSE=/usr/local/freesurfer/license.txt \
-  -v $(pwd)/data:/data \
-  freesurfer/freesurfer:7.4.1 \
-  mri_convert \
-    -rt nearest \
-    -oi \
-    -at /data/t2w_transf.lta \
-    -i /data/t2w_synthseg.nii.gz \
-    -o /data/t2w_synthseg_native.nii.gz
-    </code></pre>
 
 After this step, you should have:
 <pre><code>data/
@@ -84,7 +69,6 @@ After this step, you should have:
 ├── t2w_resampled.nii.gz
 ├── t2w_synthseg.nii.gz
 ├── t2w_synthseg_native.nii.gz
-├── t2w_transf.lta
 └── license.txt</code></pre>
 
 ## 🤖 Step 4. Run DRIPS
@@ -95,7 +79,6 @@ Run DRIPS on your MRI image (e.g. T2w) to segment PVS:
   --in /data/t2w.nii.gz \                     # Input MRI volume
   --out /data/t2w_seg.nii.gz \                # Output binary PVS segmentation mask
   --posterior /data/t2w_posterior.nii.gz \    # Posterior probability map
-  --cropping 512 \                            # Inference crop size ()
   --hyperintense 1 \                          # 1 = PVS appear hyperintense (T2w), 0 = hypointense (T1w)
   --threshold 0.05 \                          # Posterior probability threshold for binary mask
   --synthseg /data/t2w_synthseg_native.nii.gz # SynthSeg parcellation used as anatomical prior
@@ -104,7 +87,7 @@ Run DRIPS on your MRI image (e.g. T2w) to segment PVS:
 ## 🧾 Notes and Tips
 
 ### License requirement:
-FreeSurfer commands (SynthSeg and mri_convert) require a valid license.txt mounted into the container.
+FreeSurfer commands (SynthSeg, mri_convert, and mri_label2vol) require a valid license.txt mounted into the container.
 
 ### Mounting:
 Input and output files must be located within the mounted folder (here /data).
@@ -121,15 +104,6 @@ Defines the minimum posterior probability for classifying a voxel as PVS in the 
 
 In practice, values around 0.05–0.10 generally provide robust results across modalities and cohorts. Adjust only if you observe systematic over- or under-segmentation in your data.
 
-### Cropping parameter (--cropping):
-DRIPS performs inference in patches of size defined by this parameter.
-It should be set to the closest power of two (e.g. 128, 256, 512) that matches or slightly exceeds the largest spatial dimension of your MRI volume (i.e. the dimension with the most voxels).
-This ensures efficient use of GPU memory and full coverage of the image during tiling.
-
-#### Example:
-If your input volume has dimensions 240 × 256 × 180, the largest dimension is 256 → the recommended cropping size is 256.
-If your image is 320 × 400 × 300, use 512, which is the next power of two above 400.
-
 ### Output:
 After completion, the following files are generated:
 <pre><code>data/
@@ -137,7 +111,6 @@ After completion, the following files are generated:
 ├── t2w_resampled.nii.gz
 ├── t2w_synthseg.nii.gz
 ├── t2w_synthseg_native.nii.gz
-├── t2w_transf.lta
 ├── t2w_seg.nii.gz         # Binary PVS mask
 ├── t2w_posterior.nii.gz   # Posterior probability map
 └── license.txt</code></pre>
